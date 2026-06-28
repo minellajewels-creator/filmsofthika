@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>filmsofthika's bag</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👜</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;1,400&display=swap" rel="stylesheet" />
   <style>
@@ -26,7 +27,7 @@
       --shadow:      0 2px 16px rgba(0,0,0,.07);
     }
 
-    html, body { height: 100%; background: var(--white); color: var(--text); font-family: 'DM Sans', sans-serif; }
+    html, body { min-height: 100%; background: var(--white); color: var(--text); font-family: 'DM Sans', sans-serif; }
 
     header {
       padding: 28px 24px 20px;
@@ -45,12 +46,12 @@
     header .wordmark span { color: var(--accent); font-style: normal; }
     header .tagline { font-size: .78rem; color: var(--muted); margin-top: 3px; letter-spacing: .12em; text-transform: uppercase; }
 
-    main { max-width: 960px; margin: 0 auto; padding: 32px 16px 64px; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 16px 64px; display: flex; flex-direction: column; gap: 40px; }
 
+    /* ── CARD ── */
     .card {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
@@ -59,10 +60,10 @@
     }
 
     .reel-panel {
-      position: relative;
       background: #000;
       border-radius: var(--radius) 0 0 var(--radius);
       overflow: hidden;
+      position: relative;
     }
     .reel-panel iframe {
       display: block;
@@ -154,7 +155,7 @@
     .tag-other  { background: var(--tag-other); }
 
     .state-msg {
-      min-height: 60vh;
+      min-height: 50vh;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       gap: 10px; color: var(--muted); font-size: .9rem; text-align: center;
@@ -172,7 +173,7 @@
     @media (max-width: 640px) {
       .card { grid-template-columns: 1fr; }
       .reel-panel { border-radius: var(--radius) var(--radius) 0 0; }
-      .reel-panel iframe { min-height: 380px; }
+      .reel-panel iframe { min-height: 420px; }
       .products-panel { max-height: none; border-radius: 0 0 var(--radius) var(--radius); }
     }
   </style>
@@ -191,32 +192,39 @@
 <footer>Made with love · filmsofthika's bag</footer>
 
 <script>
-  // All API calls go to /api/gas (Vercel serverless proxy).
-  // GAS URL is never exposed to the browser.
   const CARD_ID = new URLSearchParams(window.location.search).get("card");
 
   async function init() {
-    if (!CARD_ID) {
-      document.getElementById("root").innerHTML =
-        `<div class="state-msg"><div class="icon">🛍</div><div>No card specified.</div></div>`;
-      return;
-    }
-
     try {
-      const res  = await fetch("/api/gas", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "getCard", card_id: CARD_ID })
-      });
-      const data = await res.json();
-
-      if (data.error || !data.card_id) {
-        document.getElementById("root").innerHTML =
-          `<div class="state-msg"><div class="icon">🛍</div><div>This link is no longer active.</div></div>`;
-        return;
+      if (CARD_ID) {
+        // Single card mode — DM link
+        const res  = await fetch("/api/gas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "getCard", card_id: CARD_ID })
+        });
+        const data = await res.json();
+        if (data.error || !data.card_id) {
+          document.getElementById("root").innerHTML =
+            `<div class="state-msg"><div class="icon">🛍</div><div>This link is no longer active.</div></div>`;
+          return;
+        }
+        renderCards([data]);
+      } else {
+        // All cards mode — main page
+        const res  = await fetch("/api/gas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "getCards" })
+        });
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          document.getElementById("root").innerHTML =
+            `<div class="state-msg"><div class="icon">🛍</div><div>No looks yet. Check back soon!</div></div>`;
+          return;
+        }
+        renderCards(data);
       }
-
-      renderCard(data);
     } catch (e) {
       document.getElementById("root").innerHTML =
         `<div class="state-msg"><div class="icon">⚠️</div><div>Could not load content. Try again.</div></div>`;
@@ -234,46 +242,46 @@
     return { ajio:"🛒", myntra:"👗", nykaa:"💄", meesho:"✨", other:"🔗" }[p] || "🔗";
   }
 
-  function renderCard(card) {
-    const embedUrl = reelEmbedUrl(card.reel_url || "");
+  function renderCards(cards) {
+    document.getElementById("root").innerHTML = cards.map(card => {
+      const embedUrl     = reelEmbedUrl(card.reel_url || "");
+      const productsHtml = (card.products || []).map(p => {
+        const trackUrl    = `/api/track?pid=${encodeURIComponent(p.product_id)}`;
+        const imgHtml     = p.image_url
+          ? `<img class="product-img" src="${e(p.image_url)}" alt="${e(p.name)}" loading="lazy"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          : "";
+        const placeholder = `<div class="product-img-placeholder" style="${p.image_url ? "display:none" : ""}">${platformIcon(p.platform)}</div>`;
 
-    const productsHtml = (card.products || []).map(p => {
-      // Click tracking goes through /api/track — server handles redirect to affiliate URL
-      const trackUrl = `/api/track?pid=${encodeURIComponent(p.product_id)}`;
-      const imgHtml  = p.image_url
-        ? `<img class="product-img" src="${e(p.image_url)}" alt="${e(p.name)}" loading="lazy"
-             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-        : "";
-      const placeholder = `<div class="product-img-placeholder" style="${p.image_url?"display:none":""}">${platformIcon(p.platform)}</div>`;
+        return `
+          <a class="product-item" href="${e(trackUrl)}" target="_blank" rel="noopener">
+            ${imgHtml}${placeholder}
+            <div class="product-info">
+              <div class="product-name">${e(p.name || "Product")}</div>
+              ${p.price ? `<div class="product-price">${e(p.price)}</div>` : ""}
+              <span class="platform-tag tag-${p.platform || "other"}">${(p.platform || "shop").toUpperCase()}</span>
+            </div>
+            <div class="shop-cta">Shop →</div>
+          </a>`;
+      }).join("");
 
       return `
-        <a class="product-item" href="${e(trackUrl)}" target="_blank" rel="noopener">
-          ${imgHtml}${placeholder}
-          <div class="product-info">
-            <div class="product-name">${e(p.name || "Product")}</div>
-            ${p.price ? `<div class="product-price">${e(p.price)}</div>` : ""}
-            <span class="platform-tag tag-${p.platform||"other"}">${(p.platform||"shop").toUpperCase()}</span>
+        <div class="card">
+          <div class="reel-panel">
+            <iframe src="${e(embedUrl)}" allowfullscreen scrolling="no"
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
+            </iframe>
           </div>
-          <div class="shop-cta">Shop →</div>
-        </a>`;
+          <div class="products-panel">
+            <div class="panel-heading">Shop this look</div>
+            ${productsHtml || '<p style="color:var(--muted);font-size:.85rem">No products linked yet.</p>'}
+          </div>
+        </div>`;
     }).join("");
-
-    document.getElementById("root").innerHTML = `
-      <div class="card">
-        <div class="reel-panel">
-          <iframe src="${e(embedUrl)}" allowfullscreen scrolling="no"
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
-          </iframe>
-        </div>
-        <div class="products-panel">
-          <div class="panel-heading">Shop this look</div>
-          ${productsHtml || '<p style="color:var(--muted);font-size:.85rem">No products linked yet.</p>'}
-        </div>
-      </div>`;
   }
 
   function e(s) {
-    return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
   init();
