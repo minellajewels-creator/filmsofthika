@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — filmsofthika's bag</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --white:    #ffffff;
+      --off:      #f8f8f8;
+      --border:   #ebebeb;
+      --muted:    #aaa;
+      --text:     #1a1a1a;
+      --sub:      #6b6b6b;
+      --accent:   #c9a96e;
+      --accent-d: #a8863a;
+      --danger:   #e05252;
+      --green:    #3dab6b;
+      --radius:   12px;
+      --shadow:   0 2px 14px rgba(0,0,0,.06);
+    }
+
+    html, body { background: var(--off); font-family: 'DM Sans', sans-serif; color: var(--text); min-height: 100%; }
+
+    /* ── LAYOUT ── */
+    .layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      padding: 28px 0;
+      display: flex; flex-direction: column;
+    }
+    .sidebar-logo {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .sidebar-logo .wm { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.1rem; }
+    .sidebar-logo .wm span { color: var(--accent); font-style: normal; }
+    .sidebar-logo .badge { font-size: .68rem; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin-top: 2px; }
+
+    nav a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px;
+      font-size: .88rem;
+      color: var(--sub);
+      text-decoration: none;
+      border-radius: 0;
+      transition: background .12s, color .12s;
+      cursor: pointer;
+    }
+    nav a:hover, nav a.active { background: var(--off); color: var(--text); }
+    nav a .ico { font-size: 1rem; width: 22px; text-align: center; }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 16px 20px 0;
+      border-top: 1px solid var(--border);
+    }
+    .gas-config label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; display: block; margin-bottom: 6px; }
+    .gas-config input {
+      width: 100%; padding: 7px 10px; border: 1px solid var(--border);
+      border-radius: 8px; font-size: .8rem; font-family: 'DM Sans', sans-serif;
+      background: var(--off);
+    }
+    .gas-config input:focus { outline: none; border-color: var(--accent); }
+    .gas-save-btn {
+      width: 100%; margin-top: 8px; padding: 8px;
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 8px; font-size: .8rem; font-weight: 600; cursor: pointer;
+      transition: background .15s;
+    }
+    .gas-save-btn:hover { background: var(--accent-d); }
+
+    /* ── CONTENT ── */
+    .content { padding: 32px 28px; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 24px;
+    }
+
+    /* ── CARDS ── */
+    .cards-grid { display: grid; gap: 18px; }
+
+    .card-block {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--off);
+    }
+    .card-header-info { flex: 1; min-width: 0; }
+    .card-id-label { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+    .card-reel { font-size: .82rem; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+    .card-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .btn { padding: 6px 14px; border-radius: 8px; border: none; font-size: .8rem; font-weight: 600; cursor: pointer; transition: opacity .15s; font-family: 'DM Sans', sans-serif; }
+    .btn:hover { opacity: .85; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--sub); }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-danger { background: transparent; border: 1px solid #fcd; color: var(--danger); }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-sm { padding: 4px 10px; font-size: .75rem; }
+
+    /* ── GENERATED LINK ── */
+    .gen-link-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 20px;
+      background: #fffdf6;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .gen-link-row .link-label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; flex-shrink: 0; }
+    .gen-link-row .link-url { font-size: .8rem; color: var(--accent-d); word-break: break-all; flex: 1; }
+    .gen-link-row .copy-btn { flex-shrink: 0; }
+
+    /* ── PRODUCTS LIST ── */
+    .products-list { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+    .product-row {
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--off);
+    }
+    .prod-img { width: 56px; height: 56px; object-fit: cover; border-radius: 7px; background: #eee; }
+    .prod-img-placeholder { width: 56px; height: 56px; border-radius: 7px; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    .prod-name { font-size: .88rem; font-weight: 500; }
+    .prod-price { font-size: .8rem; color: var(--sub); }
+    .prod-platform { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
+    .prod-url { font-size: .72rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+    .prod-clicks { font-size: .78rem; color: var(--sub); }
+    .prod-actions { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
+
+    .click-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #f0f0f0; border-radius: 20px;
+      padding: 2px 9px; font-size: .72rem; color: var(--sub); font-weight: 500;
+    }
+    .click-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+    /* ── ADD PRODUCT FORM ── */
+    .add-product-row {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--white);
+    }
+    .add-product-row .row-title { font-size: .78rem; font-weight: 600; color: var(--sub); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .08em; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+    .form-full { grid-column: 1 / -1; }
+
+    input[type="text"], input[type="url"], input[type="number"], select, textarea {
+      width: 100%; padding: 8px 11px;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: .82rem; font-family: 'DM Sans', sans-serif;
+      color: var(--text); background: var(--off);
+      transition: border-color .15s;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); background: var(--white); }
+
+    .field-label { font-size: .72rem; color: var(--muted); margin-bottom: 4px; display: block; text-transform: uppercase; letter-spacing: .07em; }
+    .field-wrap { display: flex; flex-direction: column; }
+
+    .fetch-row { display: flex; gap: 6px; align-items: flex-end; }
+    .fetch-row input { flex: 1; }
+    .fetch-btn { flex-shrink: 0; }
+
+    /* ── ADD CARD FORM ── */
+    .new-card-panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+    .new-card-panel h3 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+
+    /* ── ANALYTICS ── */
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-box {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 22px;
+      box-shadow: var(--shadow);
+    }
+    .stat-num { font-size: 2rem; font-weight: 600; }
+    .stat-label { font-size: .78rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .08em; }
+
+    .analytics-table {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    th { padding: 12px 16px; text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); border-bottom: 1px solid var(--border); }
+    td { padding: 11px 16px; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    .bar-bg { height: 6px; background: var(--border); border-radius: 3px; margin-top: 5px; }
+    .bar-fill { height: 6px; background: var(--accent); border-radius: 3px; }
+
+    /* ── TOAST ── */
+    .toast-wrap { position: fixed; top: 20px; right: 20px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+    .toast {
+      padding: 10px 18px; border-radius: 10px; font-size: .84rem; font-weight: 500;
+      background: var(--text); color: var(--white);
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+      animation: fadeIn .2s ease;
+    }
+    .toast.success { background: var(--green); }
+    .toast.error   { background: var(--danger); }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: none; } }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white); border-radius: var(--radius); padding: 28px;
+      max-width: 500px; width: 90%; box-shadow: 0 8px 40px rgba(0,0,0,.18);
+    }
+    .modal h3 { font-size: 1.05rem; margin-bottom: 18px; }
+    .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+    /* ── PLATFORM COLORS ── */
+    .tag-ajio   { color: #1a1a2e; }
+    .tag-myntra { color: #ff3f6c; }
+    .tag-nykaa  { color: #fc2779; }
+    .tag-meesho { color: #9c27b0; }
+    .tag-other  { color: var(--sub); }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { flex-direction: row; padding: 12px; overflow-x: auto; }
+      .sidebar-bottom, .sidebar-logo .badge { display: none; }
+      .stats-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Edit Product Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>Edit Product</h3>
+    <input type="hidden" id="edit_product_id" />
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="field-wrap"><label class="field-label">Name</label><input type="text" id="edit_name" /></div>
+      <div class="field-wrap"><label class="field-label">Price</label><input type="text" id="edit_price" /></div>
+      <div class="field-wrap"><label class="field-label">Regular URL</label><input type="url" id="edit_regular_url" /></div>
+      <div class="field-wrap"><label class="field-label">Affiliate URL</label><input type="url" id="edit_affiliate_url" /></div>
+      <div class="field-wrap"><label class="field-label">Image URL</label><input type="url" id="edit_image_url" /></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-accent" onclick="saveEditProduct()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="wm">filmsofthika's <span>bag</span></div>
+      <div class="badge">Admin Panel</div>
+    </div>
+    <nav>
+      <a class="active" data-page="cards" onclick="switchPage('cards')">
+        <span class="ico">🎬</span> Cards
+      </a>
+      <a data-page="analytics" onclick="switchPage('analytics')">
+        <span class="ico">📊</span> Analytics
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="gas-config">
+        <label>GAS URL</label>
+        <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/…/exec" />
+        <label style="margin-top:10px">Storefront Domain</label>
+        <input type="url" id="domainInput" placeholder="https://yourdomain.vercel.app" />
+        <button class="gas-save-btn" onclick="saveConfig()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- CARDS PAGE -->
+    <div class="page active" id="page-cards">
+      <div class="page-title">Reel Cards</div>
+
+      <!-- New Card -->
+      <div class="new-card-panel">
+        <h3>Add New Reel Card</h3>
+        <div class="form-grid">
+          <div class="field-wrap form-full">
+            <label class="field-label">Instagram Reel URL</label>
+            <input type="url" id="new_reel_url" placeholder="https://www.instagram.com/reel/..." />
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <button class="btn btn-accent" onclick="addCard()">+ Create Card</button>
+        </div>
+      </div>
+
+      <div class="cards-grid" id="cardsGrid">
+        <div style="color:var(--muted);font-size:.88rem">Loading cards…</div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS PAGE -->
+    <div class="page" id="page-analytics">
+      <div class="page-title">Analytics</div>
+      <div class="stats-row" id="statsRow">
+        <div class="stat-box"><div class="stat-num" id="totalClicks">—</div><div class="stat-label">Total Clicks</div></div>
+        <div class="stat-box"><div class="stat-num" id="totalCards">—</div><div class="stat-label">Active Cards</div></div>
+        <div class="stat-box"><div class="stat-num" id="totalProducts">—</div><div class="stat-label">Products Listed</div></div>
+      </div>
+      <div class="analytics-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Platform</th>
+              <th>Card</th>
+              <th>Clicks</th>
+              <th>Bar</th>
+            </tr>
+          </thead>
+          <tbody id="analyticsBody">
+            <tr><td colspan="5" style="color:var(--muted)">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────
+// On Vercel, all API calls go to /api/gas (serverless proxy).
+// GAS URL is set as an environment variable on Vercel — not needed here.
+let GAS_URL = localStorage.getItem("gas_url") || "";
+let DOMAIN  = localStorage.getItem("domain")  || "";
+
+function getApiUrl() { return GAS_URL; }
+
+document.getElementById("gasUrlInput").value = GAS_URL;
+document.getElementById("domainInput").value  = DOMAIN;
+
+function saveConfig() {
+  GAS_URL = document.getElementById("gasUrlInput").value.trim();
+  DOMAIN  = document.getElementById("domainInput").value.trim();
+  localStorage.setItem("gas_url", GAS_URL);
+  localStorage.setItem("domain",  DOMAIN);
+  toast("Saved", "success");
+  loadCards();
+}
+
+// ── NAV ─────────────────────────────────────────────────────────
+function switchPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll("nav a").forEach(a => a.classList.remove("active"));
+  document.getElementById("page-" + name).classList.add("active");
+  document.querySelector(`nav a[data-page="${name}"]`).classList.add("active");
+  if (name === "analytics") loadAnalytics();
+}
+
+// ── API — JSONP (no CORS issues from local file) ─────────────────
+function api(payload) {
+  return new Promise((resolve, reject) => {
+    if (!GAS_URL) { resolve({ error: "No GAS URL set" }); return; }
+
+    const cbName = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 9999);
+    const params = new URLSearchParams({ callback: cbName, ...payload });
+    const script = document.createElement("script");
+
+    const timer = setTimeout(() => {
+      cleanup();
+      resolve({ error: "Request timed out" });
+    }, 15000);
+
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cbName] = function(data) {
+      cleanup();
+      resolve(data);
+    };
+
+    script.src = GAS_URL + "?" + params.toString();
+    script.onerror = () => { cleanup(); resolve({ error: "Script load failed" }); };
+    document.head.appendChild(script);
+  });
+}
+
+// ── TOAST ────────────────────────────────────────────────────────
+function toast(msg, type = "") {
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.textContent = msg;
+  document.getElementById("toastWrap").appendChild(el);
+  setTimeout(() => el.remove(), 2800);
+}
+
+// ── MODAL ────────────────────────────────────────────────────────
+function openEditModal(p) {
+  document.getElementById("edit_product_id").value    = p.product_id;
+  document.getElementById("edit_name").value          = p.name || "";
+  document.getElementById("edit_price").value         = p.price || "";
+  document.getElementById("edit_regular_url").value   = p.regular_url || "";
+  document.getElementById("edit_affiliate_url").value = p.affiliate_url || "";
+  document.getElementById("edit_image_url").value     = p.image_url || "";
+  document.getElementById("editModal").classList.add("open");
+}
+function closeModal() { document.getElementById("editModal").classList.remove("open"); }
+async function saveEditProduct() {
+  const payload = {
+    action:        "updateProduct",
+    product_id:    document.getElementById("edit_product_id").value,
+    name:          document.getElementById("edit_name").value,
+    price:         document.getElementById("edit_price").value,
+    regular_url:   document.getElementById("edit_regular_url").value,
+    affiliate_url: document.getElementById("edit_affiliate_url").value,
+    image_url:     document.getElementById("edit_image_url").value,
+  };
+  const r = await api(payload);
+  if (r && r.success) { toast("Product updated", "success"); closeModal(); loadCards(); }
+  else toast(r?.error || "Failed", "error");
+}
+
+// ── CARDS ────────────────────────────────────────────────────────
+let _cards = [];
+
+async function loadCards() {
+  const data = await api({ action: "getCards" });
+  if (!data) return;
+  _cards = data;
+  renderCards(data);
+}
+
+function renderCards(cards) {
+  const grid = document.getElementById("cardsGrid");
+  if (!cards.length) { grid.innerHTML = `<div style="color:var(--muted);font-size:.88rem">No cards yet. Add one above.</div>`; return; }
+
+  grid.innerHTML = cards.map(c => {
+    const genLink = DOMAIN ? `${DOMAIN.replace(/\/$/,"")}?card=${c.card_id}` : "";
+    const prodsHtml = (c.products || []).map(p => productRowHtml(p)).join("");
+    return `
+      <div class="card-block" id="cardblock-${c.card_id}">
+        <div class="card-header">
+          <div class="card-header-info">
+            <div class="card-id-label">Card · ${c.card_id}</div>
+            <div class="card-reel">${esc(c.reel_url || "—")}</div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-outline btn-sm" onclick="editCardReel('${c.card_id}','${esc(c.reel_url)}')">Edit Reel</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteCard('${c.card_id}')">Delete</button>
+          </div>
+        </div>
+
+        ${genLink ? `
+        <div class="gen-link-row">
+          <span class="link-label">DM Link</span>
+          <span class="link-url">${genLink}</span>
+          <button class="btn btn-outline btn-sm copy-btn" onclick="copyText('${genLink}')">Copy</button>
+          <a class="btn btn-accent btn-sm" href="${genLink}" target="_blank">Preview</a>
+        </div>` : `
+        <div class="gen-link-row"><span class="link-label" style="color:var(--muted)">Set domain in sidebar to generate DM link</span></div>`}
+
+        <div class="products-list" id="prods-${c.card_id}">
+          ${prodsHtml || `<p style="color:var(--muted);font-size:.82rem">No products yet.</p>`}
+        </div>
+
+        <div class="add-product-row">
+          <div class="row-title">+ Add Product</div>
+          <div class="fetch-row" style="margin-bottom:10px">
+            <input type="url" id="reg_${c.card_id}" placeholder="Regular product URL (Ajio/Myntra/Nykaa/Meesho…)" />
+            <button class="btn btn-outline btn-sm fetch-btn" onclick="fetchMeta('${c.card_id}')">Auto-fill</button>
+          </div>
+          <div class="form-grid three">
+            <div class="field-wrap">
+              <label class="field-label">Name</label>
+              <input type="text" id="pname_${c.card_id}" placeholder="Product name" />
+            </div>
+            <div class="field-wrap">
+              <label class="field-label">Price</label>
+              <input type="text" id="pprice_${c.card_id}" placeholder="₹999" />
+            </div>
+            <div class="field-wrap">
+              <label class="field-label">Image URL</label>
+              <input type="url" id="pimg_${c.card_id}" placeholder="https://…" />
+            </div>
+            <div class="field-wrap form-full">
+              <label class="field-label">Affiliate Link</label>
+              <input type="url" id="paff_${c.card_id}" placeholder="Your affiliate link" />
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn btn-accent" onclick="addProduct('${c.card_id}')">Add Product</button>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function productRowHtml(p) {
+  const imgHtml = p.image_url
+    ? `<img class="prod-img" src="${esc(p.image_url)}" alt="" onerror="this.style.display='none'"/>`
+    : `<div class="prod-img-placeholder">${platformIcon(p.platform)}</div>`;
+
+  return `
+    <div class="product-row" id="prodrow-${p.product_id}">
+      ${imgHtml}
+      <div>
+        <div class="prod-name">${esc(p.name || "Unnamed")}</div>
+        <div class="prod-price">${esc(p.price || "")}</div>
+        <div class="prod-platform tag-${p.platform}">${(p.platform || "other").toUpperCase()}</div>
+        <div class="prod-url">${esc(p.affiliate_url || p.regular_url || "")}</div>
+      </div>
+      <div class="prod-actions">
+        <span class="click-badge"><span class="dot"></span>${p.clicks || 0} clicks</span>
+        <button class="btn btn-outline btn-sm" onclick='openEditModal(${JSON.stringify(p)})'>Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.product_id}','${p.card_id}')">Remove</button>
+      </div>
+    </div>`;
+}
+
+function platformIcon(platform) {
+  const icons = { ajio:"🛒", myntra:"👗", nykaa:"💄", meesho:"✨", other:"🔗" };
+  return icons[platform] || "🔗";
+}
+
+// ── ADD CARD ─────────────────────────────────────────────────────
+async function addCard() {
+  const reel_url = document.getElementById("new_reel_url").value.trim();
+  if (!reel_url) { toast("Enter a reel URL", "error"); return; }
+  const r = await api({ action: "addCard", reel_url, domain: DOMAIN });
+  if (r && r.success) {
+    toast("Card created!", "success");
+    document.getElementById("new_reel_url").value = "";
+    loadCards();
+  } else toast(r?.error || "Failed", "error");
+}
+
+async function editCardReel(card_id, current) {
+  const url = prompt("New reel URL:", current);
+  if (!url) return;
+  const r = await api({ action: "updateCard", card_id, reel_url: url });
+  if (r && r.success) { toast("Reel updated", "success"); loadCards(); }
+  else toast(r?.error || "Failed", "error");
+}
+
+async function deleteCard(card_id) {
+  if (!confirm("Delete this card and all its products?")) return;
+  const r = await api({ action: "deleteCard", card_id });
+  if (r && r.success) { toast("Card deleted", "success"); loadCards(); }
+  else toast(r?.error || "Failed", "error");
+}
+
+// ── PRODUCTS ─────────────────────────────────────────────────────
+async function fetchMeta(card_id) {
+  const url = document.getElementById(`reg_${card_id}`).value.trim();
+  if (!url) { toast("Enter a URL first", "error"); return; }
+  toast("Fetching product info…");
+  const r = await api({ action: "fetchMeta", url });
+  if (r && !r.error) {
+    if (r.name)  document.getElementById(`pname_${card_id}`).value  = r.name;
+    if (r.price) document.getElementById(`pprice_${card_id}`).value = r.price;
+    if (r.image) document.getElementById(`pimg_${card_id}`).value   = r.image;
+    toast("Auto-filled!", "success");
+  } else toast(r?.error || "Could not fetch", "error");
+}
+
+async function addProduct(card_id) {
+  const payload = {
+    action:        "addProduct",
+    card_id,
+    name:          document.getElementById(`pname_${card_id}`).value.trim(),
+    price:         document.getElementById(`pprice_${card_id}`).value.trim(),
+    regular_url:   document.getElementById(`reg_${card_id}`).value.trim(),
+    affiliate_url: document.getElementById(`paff_${card_id}`).value.trim(),
+    image_url:     document.getElementById(`pimg_${card_id}`).value.trim(),
+  };
+  if (!payload.affiliate_url && !payload.regular_url) { toast("Add at least one URL", "error"); return; }
+  const r = await api(payload);
+  if (r && r.success) {
+    toast("Product added!", "success");
+    // clear fields
+    ["pname","pprice","reg","paff","pimg"].forEach(k => {
+      const el = document.getElementById(`${k}_${card_id}`);
+      if (el) el.value = "";
+    });
+    loadCards();
+  } else toast(r?.error || "Failed", "error");
+}
+
+async function deleteProduct(product_id, card_id) {
+  if (!confirm("Remove this product?")) return;
+  const r = await api({ action: "deleteProduct", product_id });
+  if (r && r.success) { toast("Removed", "success"); loadCards(); }
+  else toast(r?.error || "Failed", "error");
+}
+
+// ── ANALYTICS ────────────────────────────────────────────────────
+async function loadAnalytics() {
+  const data = await api({ action: "getAnalytics" });
+  if (!data || data.error) return;
+
+  document.getElementById("totalClicks").textContent   = data.totalClicks;
+  document.getElementById("totalCards").textContent    = data.byCard.length;
+  document.getElementById("totalProducts").textContent = data.byProduct.length;
+
+  const max = Math.max(...data.byProduct.map(p => p.clicks), 1);
+  const tbody = document.getElementById("analyticsBody");
+  tbody.innerHTML = data.byProduct.map(p => `
+    <tr>
+      <td><strong>${esc(p.name || "—")}</strong></td>
+      <td><span class="prod-platform tag-${p.platform}">${(p.platform || "other").toUpperCase()}</span></td>
+      <td style="font-size:.78rem;color:var(--muted)">${esc(p.card_id)}</td>
+      <td><strong>${p.clicks}</strong></td>
+      <td style="width:120px">
+        <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(p.clicks/max*100)}%"></div></div>
+      </td>
+    </tr>`).join("") || `<tr><td colspan="5" style="color:var(--muted)">No data yet.</td></tr>`;
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast("Copied!", "success"));
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+if (GAS_URL) loadCards();
+else document.getElementById("cardsGrid").innerHTML = '<div style="color:var(--muted);font-size:.88rem">Enter your GAS URL in the sidebar to get started.</div>';
+</script>
+</body>
+</html>
