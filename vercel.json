@@ -2,11 +2,6 @@
   "version": 2,
   "buildCommand": "",
   "outputDirectory": "public",
-  "functions": {
-    "api/*.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "routes": [
     {
       "src": "/api/gas",
