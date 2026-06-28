@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "buildCommand": "",
+  "outputDirectory": "public",
+  "functions": {
+    "api/*.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/gas",
+      "dest": "/api/gas.js"
+    },
+    {
+      "src": "/api/track",
+      "dest": "/api/track.js"
+    },
+    {
+      "src": "/",
+      "dest": "/public/index.html"
+    }
+  ]
+}

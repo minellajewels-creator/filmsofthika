@@ -1,0 +1,9 @@
+{
+  "name": "filmsofthika-bag",
+  "version": "1.0.0",
+  "description": "filmsofthika's bag — Instagram affiliate storefront",
+  "private": true,
+  "engines": {
+    "node": ">=20.x"
+  }
+}

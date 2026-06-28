@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>filmsofthika's bag</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,500;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --white:       #ffffff;
+      --off:         #fafafa;
+      --border:      #ececec;
+      --muted:       #b0b0b0;
+      --text:        #1a1a1a;
+      --subtext:     #6b6b6b;
+      --accent:      #c9a96e;
+      --tag-ajio:    #1a1a2e;
+      --tag-myntra:  #ff3f6c;
+      --tag-nykaa:   #fc2779;
+      --tag-meesho:  #9c27b0;
+      --tag-other:   #888;
+      --radius:      14px;
+      --shadow:      0 2px 16px rgba(0,0,0,.07);
+    }
+
+    html, body { height: 100%; background: var(--white); color: var(--text); font-family: 'DM Sans', sans-serif; }
+
+    header {
+      padding: 28px 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      background: var(--white);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header .wordmark {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.5rem;
+      letter-spacing: .02em;
+      color: var(--text);
+    }
+    header .wordmark span { color: var(--accent); font-style: normal; }
+    header .tagline { font-size: .78rem; color: var(--muted); margin-top: 3px; letter-spacing: .12em; text-transform: uppercase; }
+
+    main { max-width: 960px; margin: 0 auto; padding: 32px 16px 64px; }
+
+    .card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: var(--white);
+    }
+
+    .reel-panel {
+      position: relative;
+      background: #000;
+      border-radius: var(--radius) 0 0 var(--radius);
+      overflow: hidden;
+    }
+    .reel-panel iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 540px;
+      border: none;
+    }
+
+    .products-panel {
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+      max-height: 540px;
+    }
+
+    .panel-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 4px;
+    }
+
+    .product-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-decoration: none;
+      color: inherit;
+      transition: box-shadow .18s, border-color .18s;
+    }
+    .product-item:hover { box-shadow: 0 4px 18px rgba(0,0,0,.09); border-color: var(--accent); }
+
+    .product-img {
+      width: 62px; height: 62px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--off);
+    }
+    .product-img-placeholder {
+      width: 62px; height: 62px;
+      border-radius: 8px;
+      background: var(--off);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.4rem;
+    }
+
+    .product-info { flex: 1; min-width: 0; }
+    .product-name {
+      font-size: .88rem;
+      font-weight: 500;
+      line-height: 1.3;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .product-price { font-size: .82rem; color: var(--subtext); margin-top: 3px; }
+    .platform-tag {
+      display: inline-block;
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      color: #fff;
+      margin-top: 5px;
+    }
+    .shop-cta {
+      flex-shrink: 0;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .tag-ajio   { background: var(--tag-ajio); }
+    .tag-myntra { background: var(--tag-myntra); }
+    .tag-nykaa  { background: var(--tag-nykaa); }
+    .tag-meesho { background: var(--tag-meesho); }
+    .tag-other  { background: var(--tag-other); }
+
+    .state-msg {
+      min-height: 60vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px; color: var(--muted); font-size: .9rem; text-align: center;
+    }
+    .state-msg .icon { font-size: 2.2rem; }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: .72rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 640px) {
+      .card { grid-template-columns: 1fr; }
+      .reel-panel { border-radius: var(--radius) var(--radius) 0 0; }
+      .reel-panel iframe { min-height: 380px; }
+      .products-panel { max-height: none; border-radius: 0 0 var(--radius) var(--radius); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">filmsofthika's <span>bag</span></div>
+  <div class="tagline">Shop what you see in the reel</div>
+</header>
+
+<main id="root">
+  <div class="state-msg"><div class="icon">✦</div><div>Loading…</div></div>
+</main>
+
+<footer>Made with love · filmsofthika's bag</footer>
+
+<script>
+  // All API calls go to /api/gas (Vercel serverless proxy).
+  // GAS URL is never exposed to the browser.
+  const CARD_ID = new URLSearchParams(window.location.search).get("card");
+
+  async function init() {
+    if (!CARD_ID) {
+      document.getElementById("root").innerHTML =
+        `<div class="state-msg"><div class="icon">🛍</div><div>No card specified.</div></div>`;
+      return;
+    }
+
+    try {
+      const res  = await fetch("/api/gas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "getCard", card_id: CARD_ID })
+      });
+      const data = await res.json();
+
+      if (data.error || !data.card_id) {
+        document.getElementById("root").innerHTML =
+          `<div class="state-msg"><div class="icon">🛍</div><div>This link is no longer active.</div></div>`;
+        return;
+      }
+
+      renderCard(data);
+    } catch (e) {
+      document.getElementById("root").innerHTML =
+        `<div class="state-msg"><div class="icon">⚠️</div><div>Could not load content. Try again.</div></div>`;
+    }
+  }
+
+  function reelEmbedUrl(url) {
+    const match = url.match(/instagram\.com\/(?:reel|p)\/([\w-]+)/);
+    if (match) return `https://www.instagram.com/p/${match[1]}/embed/`;
+    if (url.includes("/embed")) return url;
+    return url;
+  }
+
+  function platformIcon(p) {
+    return { ajio:"🛒", myntra:"👗", nykaa:"💄", meesho:"✨", other:"🔗" }[p] || "🔗";
+  }
+
+  function renderCard(card) {
+    const embedUrl = reelEmbedUrl(card.reel_url || "");
+
+    const productsHtml = (card.products || []).map(p => {
+      // Click tracking goes through /api/track — server handles redirect to affiliate URL
+      const trackUrl = `/api/track?pid=${encodeURIComponent(p.product_id)}`;
+      const imgHtml  = p.image_url
+        ? `<img class="product-img" src="${e(p.image_url)}" alt="${e(p.name)}" loading="lazy"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : "";
+      const placeholder = `<div class="product-img-placeholder" style="${p.image_url?"display:none":""}">${platformIcon(p.platform)}</div>`;
+
+      return `
+        <a class="product-item" href="${e(trackUrl)}" target="_blank" rel="noopener">
+          ${imgHtml}${placeholder}
+          <div class="product-info">
+            <div class="product-name">${e(p.name || "Product")}</div>
+            ${p.price ? `<div class="product-price">${e(p.price)}</div>` : ""}
+            <span class="platform-tag tag-${p.platform||"other"}">${(p.platform||"shop").toUpperCase()}</span>
+          </div>
+          <div class="shop-cta">Shop →</div>
+        </a>`;
+    }).join("");
+
+    document.getElementById("root").innerHTML = `
+      <div class="card">
+        <div class="reel-panel">
+          <iframe src="${e(embedUrl)}" allowfullscreen scrolling="no"
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
+          </iframe>
+        </div>
+        <div class="products-panel">
+          <div class="panel-heading">Shop this look</div>
+          ${productsHtml || '<p style="color:var(--muted);font-size:.85rem">No products linked yet.</p>'}
+        </div>
+      </div>`;
+  }
+
+  function e(s) {
+    return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  init();
+</script>
+</body>
+</html>
